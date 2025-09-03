@@ -14,6 +14,16 @@ export class RegisterUserDto {
     password: string;
 }
 
+export class LoginUserDto {
+    @IsNotEmpty()
+    @IsString()
+    email: string;
+
+    @IsNotEmpty()
+    @IsString()
+    password: string;
+}
+
 export class UserRegisterResponseDto {
     status: number;
     message: string;
@@ -21,5 +31,16 @@ export class UserRegisterResponseDto {
         userId: string;
         name: string;
         email: string;
+    }
+}
+
+export class UserLoginResponseDto {
+    status: number;
+    message: string;
+    user?: {
+        userId: string;
+        name: string;
+        email: string;
+        accessToken: string;
     }
 }

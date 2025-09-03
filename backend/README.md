@@ -13,10 +13,12 @@ yarn install
     ```
 
 ## Setup the environments variables
-- First copy [.env.sample](.env.sample) and rename it to [.env](.env)
-- Then make sure it include the MONGODB_URI like this
+- First create `.env` file
+- Then copy and paste those environments variables and change them if you like
     ```dotenv
     MONGODB_URI=mongodb://localhost:27017/easygenerator_backend_db
+    JWT_SECRET=super-secret-change-me
+    JWT_EXPIRES_IN=3600s
     ```
 
 ## Compile and run the project
