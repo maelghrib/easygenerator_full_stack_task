@@ -44,3 +44,13 @@ export class UserLoginResponseDto {
         accessToken: string;
     }
 }
+
+export class UserProfileResponseDto {
+    status: number;
+    message: string;
+    user?: {
+        userId: string;
+        name: string;
+        email: string;
+    }
+}

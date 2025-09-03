@@ -1,10 +1,17 @@
-import {ForbiddenException, Injectable} from '@nestjs/common';
-import {LoginUserDto, RegisterUserDto, UserLoginResponseDto, UserRegisterResponseDto} from "./dto/auth.dto";
+import {Injectable} from '@nestjs/common';
+import {
+    LoginUserDto,
+    RegisterUserDto,
+    UserLoginResponseDto,
+    UserProfileResponseDto,
+    UserRegisterResponseDto
+} from "./auth.dto";
 import * as argon from "argon2";
 import {UsersService} from "../users/users.service";
 import {JwtService} from "@nestjs/jwt";
 import {User} from "../schemas/user.schema";
 import {ResponseMessage, ResponseStatus} from "../common/constants";
+import {JwtPayload} from "./auth.types";
 
 @Injectable()
 export class AuthService {
@@ -50,7 +57,7 @@ export class AuthService {
             };
         }
 
-        const payload = {sub: user.userId, email: user.email};
+        const payload: JwtPayload = {sub: user.userId, email: user.email};
 
         return {
             status: ResponseStatus.SUCCESS,
@@ -60,6 +67,27 @@ export class AuthService {
                 name: user.name,
                 email: user.email,
                 accessToken: await this.jwtService.signAsync(payload),
+            }
+        };
+    }
+
+    async getUserProfile(email: string): Promise<UserProfileResponseDto> {
+        const user: User | null = await this.usersService.findUser(email);
+
+        if (!user) {
+            return {
+                status: ResponseStatus.NOT_FOUND,
+                message: ResponseMessage.USER_IS_NOT_FOUND,
+            };
+        }
+
+        return {
+            status: ResponseStatus.SUCCESS,
+            message: ResponseMessage.USER_FETCH_SUCCESS,
+            user: {
+                userId: user.userId,
+                name: user.name,
+                email: user.email,
             }
         };
     }
