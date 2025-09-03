@@ -5,6 +5,13 @@
 yarn install
 ```
 
+## Setup the database
+- **First make sure to install [Docker](https://docs.docker.com/install/)**
+- **Then run docker compose to setup MongoDB database**
+    ```shell
+    docker-compose up --build -d
+    ```
+
 ## Compile and run the project
 - **Run the development server**
     ```shell
