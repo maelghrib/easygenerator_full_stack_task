@@ -12,6 +12,13 @@ yarn install
     docker-compose up --build -d
     ```
 
+## Setup the environments variables
+- First copy [.env.sample](.env.sample) and rename it to [.env](.env)
+- Then make sure it include the MONGODB_URI like this
+    ```dotenv
+    MONGODB_URI=mongodb://localhost:27017/easygenerator_backend_db
+    ```
+
 ## Compile and run the project
 - **Run the development server**
     ```shell
