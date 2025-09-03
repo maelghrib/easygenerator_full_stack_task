@@ -1,50 +1,28 @@
 # Easygenerator Backend
 
-## Installation 
-```shell
-yarn install
-```
+## Prerequisites
+Make sure to install Docker and Docker Compose
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/)
 
-## Setup the database
-- First make sure to install [Docker](https://docs.docker.com/install/)
-- Then run docker compose to setup MongoDB database
-    ```shell
-    docker-compose up --build -d
-    ```
-
-## Setup the environments variables
-- First create `.env` file
-- Then copy and paste those environments variables and change them if you like
+## Setup the environment variables
+1. Create a `.env` file in the project root.
+2. Copy and paste the following (adjust values if needed):
     ```dotenv
-    MONGODB_URI=mongodb://localhost:27017/easygenerator_backend_db
+    MONGODB_URI=mongodb://mongodb_container:27017/easygenerator_backend_db
     JWT_SECRET=super-secret-change-me
     JWT_EXPIRES_IN=3600s
-    ```
+    ````
 
-## Compile and run the project
-- Run the development server
-    ```shell
-    yarn run start
-    ```
-- Run with the watch mode
-    ```shell
-    yarn run start:dev
-    ```
-- Run with the production mode
-    ```shell
-    yarn run start:prod
-    ```
+## Run the project with Docker
 
-## Run tests
-- Run unit tests
-    ```shell
-    yarn run test
-    ```
-- Run e2e tests
-    ```shell
-    yarn run test:e2e
-    ```
-- Run test coverage
-    ```shell
-    yarn run test:cov
-    ```
+Build and start the app + MongoDB:
+```bash
+docker-compose up --build -d
+```
+
+Stop containers:
+
+```bash
+docker-compose down
+```
