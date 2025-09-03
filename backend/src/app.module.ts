@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {ConfigModule, ConfigService} from "@nestjs/config";
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -10,10 +11,11 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
       MongooseModule.forRootAsync({
           imports: [ConfigModule],
           inject: [ConfigService],
-          useFactory: async (configService: ConfigService) => ({
+          useFactory: async (configService: ConfigService): Promise<{uri: string | undefined}> => ({
               uri: configService.get<string>('MONGODB_URI'),
           }),
       }),
+      UsersModule,
   ],
   controllers: [],
   providers: [],
