@@ -14,4 +14,4 @@ A production-ready authentication system that allows a user to sign up and sign 
 cd backend
 yarn run start
 ```
-Then visit http://localhost:3000
+Then visit http://localhost:3333
