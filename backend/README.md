@@ -14,6 +14,8 @@ Build and start the project:
 make up
 ```
 
+Test and run the API at http://localhost:3333/api
+
 Stop containers:
 
 ```bash
