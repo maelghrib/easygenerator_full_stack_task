@@ -3,9 +3,18 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+      ThrottlerModule.forRoot({
+          throttlers: [
+              {
+                  ttl: 60000,
+                  limit: 10,
+              },
+          ],
+      }),
       ConfigModule.forRoot({
           isGlobal: true,
       }),
