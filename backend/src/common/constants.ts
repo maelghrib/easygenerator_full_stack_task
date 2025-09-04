@@ -16,10 +16,13 @@ export enum ResponseMessage {
     UNAUTHORIZED = 'Unauthorized',
     INVALID_CREDENTIALS = 'Invalid credentials',
     VALIDATION_FAILED = 'Validation failed',
+    REFRESH_SUCCESS = 'Refresh fetched successfully',
+    EXPIRED_REFRESH_TOKEN = 'Expired refresh token',
 }
 
 export enum APIEndpoint {
     SIGNUP = 'signup',
     LOGIN = 'login',
+    REFRESH = 'refresh',
     PROFILE = 'profile',
 }

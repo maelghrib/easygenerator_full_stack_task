@@ -9,11 +9,12 @@ import {
 } from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {
+    RefreshTokenDto,
     UserLoginDto, UserSignUpDto,
 } from './auth.dto';
 import {AuthGuard} from './auth.guard';
 import {JwtPayloadDecorator} from './auth.decorators';
-import {JwtPayload, LoginResponse, SignUpResponse, UserProfileResponse} from './auth.types';
+import {JwtPayload, LoginResponse, RefreshResponse, SignUpResponse, UserProfileResponse} from './auth.types';
 import {
     ApiBearerAuth,
     ApiResponse,
@@ -51,6 +52,17 @@ export class AuthController {
         @Body() userLoginDto: UserLoginDto,
     ): Promise<LoginResponse> {
         return await this.authService.login(userLoginDto);
+    }
+
+    @Post(APIEndpoint.REFRESH)
+    @ApiResponse({
+        status: ResponseStatus.SUCCESS,
+        description: ResponseMessage.REFRESH_SUCCESS,
+    })
+    @ApiResponse({status: ResponseStatus.UNAUTHORIZED, description: ResponseMessage.EXPIRED_REFRESH_TOKEN})
+    @UsePipes(new ValidationPipe({whitelist: true}))
+    async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<RefreshResponse> {
+        return this.authService.refresh(refreshTokenDto.refreshToken);
     }
 
     @UseGuards(AuthGuard)

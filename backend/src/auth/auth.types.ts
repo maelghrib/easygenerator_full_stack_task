@@ -38,6 +38,11 @@ export class LoginResponse {
     message?: string;
 }
 
+export class RefreshResponse {
+    @ApiProperty({ example: 'eyJhbGciOi...', description: 'JWT access token' })
+    accessToken: string;
+}
+
 export class UserProfileResponse {
     @ApiProperty({example: 200})
     status: number;
