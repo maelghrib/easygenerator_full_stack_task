@@ -1,6 +1,9 @@
 import {ApiProperty} from "@nestjs/swagger";
 
 export class SignUpResponse {
+    @ApiProperty({example: '201'})
+    status: number;
+
     @ApiProperty({example: 'User signed up successfully'})
     message: string;
 }

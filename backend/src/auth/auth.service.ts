@@ -35,6 +35,7 @@ export class AuthService {
         this.logger.log(`New user registered: ${signUpDto.email}`);
 
         return {
+            status: ResponseStatus.CREATED,
             message: ResponseMessage.SIGNUP_SUCCESS,
         };
     }

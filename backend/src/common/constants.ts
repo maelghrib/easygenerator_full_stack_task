@@ -1,4 +1,5 @@
 export enum ResponseStatus {
+    CREATED = 201,
     SUCCESS = 200,
     UNAUTHORIZED = 401,
 }
