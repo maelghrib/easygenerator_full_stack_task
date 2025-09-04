@@ -8,7 +8,7 @@ import {UsersService} from "../users/users.service";
 import {JwtService} from "@nestjs/jwt";
 import {User} from "../schemas/user.schema";
 import {ResponseMessage, ResponseStatus} from "../common/constants";
-import {JwtPayload, LoginResponse, RefreshResponse, SignUpResponse} from "./auth.types";
+import {JwtPayload, LoginResponse, SignUpResponse} from "./auth.types";
 import {ConfigService} from "@nestjs/config";
 
 @Injectable()
@@ -61,43 +61,10 @@ export class AuthService {
             expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN') || '15m',
         });
 
-        const refreshToken = await this.jwtService.signAsync(payload, {
-            secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-            expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d',
-        });
-
         this.logger.log(`Login successful for ${loginDto.email}`);
 
         return {
             accessToken: accessToken,
-            refreshToken: refreshToken,
-            status: ResponseStatus.SUCCESS,
-            message: 'Login successful',
         };
     }
-
-    async refresh(refreshToken: string): Promise<RefreshResponse> {
-        try {
-            const payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
-                secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-            });
-
-            const newAccessToken = await this.jwtService.signAsync(
-                {sub: payload.sub, email: payload.email},
-                {
-                    secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-                    expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN') || '15m',
-                },
-            );
-
-            this.logger.log(`Access token refreshed for userId=${payload.sub}`);
-
-            return {accessToken: newAccessToken};
-
-        } catch (error) {
-            this.logger.error(`Invalid or expired refresh token`);
-            throw new UnauthorizedException('Invalid or expired refresh token');
-        }
-    }
-
 }

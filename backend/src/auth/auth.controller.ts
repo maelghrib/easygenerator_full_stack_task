@@ -5,13 +5,11 @@ import {
 } from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {
-    RefreshTokenDto,
     LoginDto,
     SignUpDto,
 } from './auth.dto';
 import {
     LoginResponse,
-    RefreshResponse,
     SignUpResponse,
 } from './auth.types';
 import {
@@ -50,15 +48,5 @@ export class AuthController {
     @ApiUnauthorizedResponse({description: ResponseMessage.INVALID_CREDENTIALS})
     async login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
         return this.authService.login(loginDto);
-    }
-
-    @Post(APIEndpoint.REFRESH)
-    @ApiOkResponse({
-        description: ResponseMessage.REFRESH_SUCCESS,
-        type: RefreshResponse,
-    })
-    @ApiUnauthorizedResponse({description: ResponseMessage.EXPIRED_REFRESH_TOKEN})
-    async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<RefreshResponse> {
-        return this.authService.refresh(refreshTokenDto.refreshToken);
     }
 }

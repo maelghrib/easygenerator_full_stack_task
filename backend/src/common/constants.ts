@@ -1,10 +1,6 @@
 export enum ResponseStatus {
     SUCCESS = 200,
-    CREATED = 201,
-    BAD_REQUEST = 400,
     UNAUTHORIZED = 401,
-    FORBIDDEN = 403,
-    NOT_FOUND = 404,
 }
 
 export enum ResponseMessage {
@@ -16,13 +12,10 @@ export enum ResponseMessage {
     UNAUTHORIZED = 'Unauthorized',
     INVALID_CREDENTIALS = 'Invalid credentials',
     VALIDATION_FAILED = 'Validation failed',
-    REFRESH_SUCCESS = 'Refresh fetched successfully',
-    EXPIRED_REFRESH_TOKEN = 'Expired refresh token',
 }
 
 export enum APIEndpoint {
     SIGNUP = 'signup',
     LOGIN = 'login',
-    REFRESH = 'refresh',
     PROFILE = 'profile',
 }
