@@ -19,26 +19,23 @@ class UserWithToken extends UserData {
     accessToken: string;
 }
 
-export class UserRegisterResponse {
-    @ApiProperty({example: 201})
-    status: number;
-
-    @ApiProperty({example: 'User successfully registered'})
+export class SignUpResponse {
+    @ApiProperty({example: 'User signed up successfully'})
     message: string;
-
-    @ApiProperty({type: UserData, required: false})
-    user?: UserData;
 }
 
-export class UserLoginResponse {
-    @ApiProperty({example: 200})
-    status: number;
+export class LoginResponse {
+    @ApiProperty({ example: 'eyJhbGciOi...', description: 'JWT access token' })
+    accessToken: string;
 
-    @ApiProperty({example: 'User successfully logged in'})
-    message: string;
+    @ApiProperty({ example: 'eyJhbGciOi...', description: 'JWT refresh token' })
+    refreshToken: string;
 
-    @ApiProperty({type: UserWithToken, required: false})
-    user?: UserWithToken;
+    @ApiProperty({ example: 200, description: 'HTTP-like status' })
+    status?: number;
+
+    @ApiProperty({ example: 'Login successful', description: 'Message' })
+    message?: string;
 }
 
 export class UserProfileResponse {

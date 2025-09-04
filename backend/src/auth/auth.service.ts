@@ -1,54 +1,58 @@
 import {Injectable} from '@nestjs/common';
 import {
-    LoginUserDto,
-    RegisterUserDto,
+    UserLoginDto,
+    UserSignUpDto,
 } from "./auth.dto";
 import * as argon from "argon2";
 import {UsersService} from "../users/users.service";
 import {JwtService} from "@nestjs/jwt";
 import {User} from "../schemas/user.schema";
 import {ResponseMessage, ResponseStatus} from "../common/constants";
-import {JwtPayload, UserLoginResponse, UserProfileResponse, UserRegisterResponse} from "./auth.types";
+import {JwtPayload, LoginResponse, SignUpResponse, UserProfileResponse} from "./auth.types";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
-    constructor(private usersService: UsersService, private jwtService: JwtService) {}
+    constructor(
+        private usersService: UsersService,
+        private jwtService: JwtService,
+        private readonly configService: ConfigService,
+    ) {
+    }
 
-    async registerUser(registerUserDto: RegisterUserDto): Promise<UserRegisterResponse> {
+    async signup(userSignUpDto: UserSignUpDto): Promise<SignUpResponse> {
 
-        const passwordHash: string = await argon.hash(registerUserDto.password);
+        const passwordHash: string = await argon.hash(userSignUpDto.password);
 
-        const savedUser: User = await this.usersService.saveUser({
-            name: registerUserDto.name,
-            email: registerUserDto.email,
+        await this.usersService.saveUser({
+            name: userSignUpDto.name,
+            email: userSignUpDto.email,
             password: passwordHash,
         });
 
         return {
-            status: ResponseStatus.CREATED,
-            message: ResponseMessage.USER_REGISTER_SUCCESS,
-            user: {
-                userId: savedUser.userId,
-                name: savedUser.name,
-                email: savedUser.email,
-            }
+            message: ResponseMessage.SIGNUP_SUCCESS,
         };
     }
 
-    async loginUser(loginUserDto: LoginUserDto): Promise<UserLoginResponse> {
-        const user: User | null = await this.usersService.findUser(loginUserDto.email);
+    async login(userLoginDto: UserLoginDto): Promise<LoginResponse> {
+        const user: User | null = await this.usersService.findUser(userLoginDto.email);
 
         if (!user) {
             return {
+                accessToken: '',
+                refreshToken: '',
                 status: ResponseStatus.NOT_FOUND,
                 message: ResponseMessage.USER_IS_NOT_FOUND,
             };
         }
 
-        const isPasswordMatch: boolean = await argon.verify(user.password, loginUserDto.password);
+        const isPasswordMatch: boolean = await argon.verify(user.password, userLoginDto.password);
 
         if (!isPasswordMatch) {
             return {
+                accessToken: '',
+                refreshToken: '',
                 status: ResponseStatus.FORBIDDEN,
                 message: ResponseMessage.PASSWORD_IS_INCORRECT,
             };
@@ -56,15 +60,21 @@ export class AuthService {
 
         const payload: JwtPayload = {sub: user.userId, email: user.email};
 
+        const accessToken = await this.jwtService.signAsync(payload, {
+            secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+            expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRES_IN') || '15m',
+        });
+
+        const refreshToken = await this.jwtService.signAsync(payload, {
+            secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+            expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d',
+        });
+
         return {
+            accessToken: accessToken,
+            refreshToken: refreshToken,
             status: ResponseStatus.SUCCESS,
-            message: ResponseMessage.USER_LOGIN_SUCCESS,
-            user: {
-                userId: user.userId,
-                name: user.name,
-                email: user.email,
-                accessToken: await this.jwtService.signAsync(payload),
-            }
+            message: 'Login successful',
         };
     }
 

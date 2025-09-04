@@ -9,12 +9,11 @@ import {
 } from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {
-    RegisterUserDto,
-    LoginUserDto,
+    UserLoginDto, UserSignUpDto,
 } from './auth.dto';
 import {AuthGuard} from './auth.guard';
 import {JwtPayloadDecorator} from './auth.decorators';
-import {JwtPayload, UserLoginResponse, UserProfileResponse, UserRegisterResponse} from './auth.types';
+import {JwtPayload, LoginResponse, SignUpResponse, UserProfileResponse} from './auth.types';
 import {
     ApiBearerAuth,
     ApiResponse,
@@ -28,36 +27,34 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {
     }
 
-    @Post(APIEndpoint.USER_REGISTER)
+    @Post(APIEndpoint.SIGNUP)
     @ApiResponse({
         status: ResponseStatus.CREATED,
-        description: ResponseMessage.USER_REGISTER_SUCCESS,
-        type: UserRegisterResponse,
+        description: ResponseMessage.SIGNUP_SUCCESS,
     })
     @ApiResponse({status: ResponseStatus.BAD_REQUEST, description: ResponseMessage.VALIDATION_FAILED})
     @UsePipes(new ValidationPipe({whitelist: true}))
-    async registerUser(
-        @Body() registerUserDto: RegisterUserDto,
-    ): Promise<UserRegisterResponse> {
-        return await this.authService.registerUser(registerUserDto);
+    async signup(
+        @Body() userSignUpDto: UserSignUpDto,
+    ): Promise<SignUpResponse> {
+        return await this.authService.signup(userSignUpDto);
     }
 
-    @Post(APIEndpoint.USER_LOGIN)
+    @Post(APIEndpoint.LOGIN)
     @ApiResponse({
         status: ResponseStatus.SUCCESS,
-        description: ResponseMessage.USER_LOGIN_SUCCESS,
-        type: UserLoginResponse,
+        description: ResponseMessage.LOGIN_SUCCESS,
     })
     @ApiResponse({status: ResponseStatus.UNAUTHORIZED, description: ResponseMessage.INVALID_CREDENTIALS})
     @UsePipes(new ValidationPipe({whitelist: true}))
-    async loginUser(
-        @Body() loginUserDto: LoginUserDto,
-    ): Promise<UserLoginResponse> {
-        return await this.authService.loginUser(loginUserDto);
+    async login(
+        @Body() userLoginDto: UserLoginDto,
+    ): Promise<LoginResponse> {
+        return await this.authService.login(userLoginDto);
     }
 
     @UseGuards(AuthGuard)
-    @Get(APIEndpoint.GET_PROFILE)
+    @Get(APIEndpoint.PROFILE)
     @ApiBearerAuth()
     @ApiResponse({
         status: ResponseStatus.SUCCESS,
