@@ -1,7 +1,7 @@
 import {
     Body,
-    Controller, Get,
-    Post, UseGuards,
+    Controller,
+    Post,
 } from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {
@@ -10,26 +10,21 @@ import {
     UserSignUpDto,
 } from './auth.dto';
 import {
-    JwtPayload,
     LoginResponse,
     RefreshResponse,
-    SignUpResponse, UserProfileResponse,
+    SignUpResponse,
 } from './auth.types';
 import {
-    ApiBearerAuth,
     ApiTags,
     ApiCreatedResponse,
     ApiOkResponse,
     ApiUnauthorizedResponse,
-    ApiBadRequestResponse, ApiResponse,
+    ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import {
     APIEndpoint,
     ResponseMessage,
-    ResponseStatus,
 } from '../common/constants';
-import {AuthGuard} from "./auth.guard";
-import {JwtPayloadDecorator} from "./auth.decorators";
 
 @ApiTags('auth')
 @Controller('auth')
@@ -65,20 +60,5 @@ export class AuthController {
     @ApiUnauthorizedResponse({description: ResponseMessage.EXPIRED_REFRESH_TOKEN})
     async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<RefreshResponse> {
         return this.authService.refresh(refreshTokenDto.refreshToken);
-    }
-
-    @UseGuards(AuthGuard)
-    @Get(APIEndpoint.PROFILE)
-    @ApiBearerAuth()
-    @ApiResponse({
-        status: ResponseStatus.SUCCESS,
-        description: ResponseMessage.USER_FETCH_SUCCESS,
-        type: UserProfileResponse,
-    })
-    @ApiResponse({status: ResponseStatus.UNAUTHORIZED, description: ResponseMessage.UNAUTHORIZED})
-    async getUserProfile(
-        @JwtPayloadDecorator() jwtPayload: JwtPayload,
-    ): Promise<UserProfileResponse> {
-        return await this.authService.getUserProfile(jwtPayload.email);
     }
 }

@@ -8,7 +8,7 @@ import {UsersService} from "../users/users.service";
 import {JwtService} from "@nestjs/jwt";
 import {User} from "../schemas/user.schema";
 import {ResponseMessage, ResponseStatus} from "../common/constants";
-import {JwtPayload, LoginResponse, RefreshResponse, SignUpResponse, UserProfileResponse} from "./auth.types";
+import {JwtPayload, LoginResponse, RefreshResponse, SignUpResponse} from "./auth.types";
 import {ConfigService} from "@nestjs/config";
 
 @Injectable()
@@ -99,24 +99,4 @@ export class AuthService {
         }
     }
 
-    async getUserProfile(email: string): Promise<UserProfileResponse> {
-        const user: User | null = await this.usersService.findUser(email);
-
-        if (!user) {
-            return {
-                status: ResponseStatus.NOT_FOUND,
-                message: ResponseMessage.USER_IS_NOT_FOUND,
-            };
-        }
-
-        return {
-            status: ResponseStatus.SUCCESS,
-            message: ResponseMessage.USER_FETCH_SUCCESS,
-            user: {
-                userId: user.userId,
-                name: user.name,
-                email: user.email,
-            }
-        };
-    }
 }
