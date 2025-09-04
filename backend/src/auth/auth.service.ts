@@ -1,4 +1,4 @@
-import {Injectable, UnauthorizedException, Logger} from '@nestjs/common';
+import {UnauthorizedException, Logger, Injectable} from '@nestjs/common';
 import {
     LoginDto,
     SignUpDto,
@@ -44,24 +44,14 @@ export class AuthService {
 
         if (!user) {
             this.logger.warn(`Login failed - user not found: ${loginDto.email}`);
-            return {
-                accessToken: '',
-                refreshToken: '',
-                status: ResponseStatus.NOT_FOUND,
-                message: ResponseMessage.USER_IS_NOT_FOUND,
-            };
+            throw new UnauthorizedException(ResponseMessage.USER_IS_NOT_FOUND);
         }
 
         const isPasswordMatch: boolean = await argon.verify(user.password, loginDto.password);
 
         if (!isPasswordMatch) {
             this.logger.warn(`Login failed - incorrect password for ${loginDto.email}`);
-            return {
-                accessToken: '',
-                refreshToken: '',
-                status: ResponseStatus.FORBIDDEN,
-                message: ResponseMessage.PASSWORD_IS_INCORRECT,
-            };
+            throw new UnauthorizedException(ResponseMessage.PASSWORD_IS_INCORRECT);
         }
 
         const payload: JwtPayload = {sub: user.userId, email: user.email};
