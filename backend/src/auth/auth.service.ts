@@ -1,4 +1,4 @@
-import {Injectable, UnauthorizedException} from '@nestjs/common';
+import {Injectable, UnauthorizedException, Logger} from '@nestjs/common';
 import {
     LoginDto,
     SignUpDto,
@@ -13,6 +13,8 @@ import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
+    private readonly logger = new Logger(AuthService.name);
+
     constructor(
         private usersService: UsersService,
         private jwtService: JwtService,
@@ -30,6 +32,8 @@ export class AuthService {
             password: passwordHash,
         });
 
+        this.logger.log(`New user registered: ${signUpDto.email}`);
+
         return {
             message: ResponseMessage.SIGNUP_SUCCESS,
         };
@@ -39,6 +43,7 @@ export class AuthService {
         const user: User | null = await this.usersService.findUser(loginDto.email);
 
         if (!user) {
+            this.logger.warn(`Login failed - user not found: ${loginDto.email}`);
             return {
                 accessToken: '',
                 refreshToken: '',
@@ -50,6 +55,7 @@ export class AuthService {
         const isPasswordMatch: boolean = await argon.verify(user.password, loginDto.password);
 
         if (!isPasswordMatch) {
+            this.logger.warn(`Login failed - incorrect password for ${loginDto.email}`);
             return {
                 accessToken: '',
                 refreshToken: '',
@@ -69,6 +75,8 @@ export class AuthService {
             secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
             expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d',
         });
+
+        this.logger.log(`Login successful for ${loginDto.email}`);
 
         return {
             accessToken: accessToken,
@@ -92,9 +100,12 @@ export class AuthService {
                 },
             );
 
+            this.logger.log(`Access token refreshed for userId=${payload.sub}`);
+
             return {accessToken: newAccessToken};
 
         } catch (error) {
+            this.logger.error(`Invalid or expired refresh token`);
             throw new UnauthorizedException('Invalid or expired refresh token');
         }
     }

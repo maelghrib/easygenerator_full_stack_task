@@ -1,11 +1,13 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
 import {SwaggerModule, DocumentBuilder, SwaggerDocumentOptions} from '@nestjs/swagger';
-import {ValidationPipe} from "@nestjs/common";
+import {Logger, ValidationPipe} from "@nestjs/common";
 import helmet from "helmet";
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+        logger: ['error', 'warn', 'log', 'debug', 'verbose'],
+    });
 
     app.use(helmet());
 
@@ -43,6 +45,7 @@ async function bootstrap() {
     SwaggerModule.setup('api', app, documentFactory);
 
     await app.listen(process.env.PORT ?? 3333);
+    Logger.log(`🚀 Application is running on: http://localhost:3333`, 'Bootstrap');
 }
 
 bootstrap();
