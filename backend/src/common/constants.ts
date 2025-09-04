@@ -7,6 +7,7 @@ export enum ResponseStatus {
 export enum ResponseMessage {
     SIGNUP_SUCCESS = 'User signed up successfully',
     LOGIN_SUCCESS = 'User logged successfully',
+    LOGOUT_SUCCESS = 'User logged out successfully',
     USER_FETCH_SUCCESS = 'User profile fetched successfully',
     USER_IS_NOT_FOUND = 'User is not found',
     PASSWORD_IS_INCORRECT = 'Password is incorrect',
@@ -18,5 +19,6 @@ export enum ResponseMessage {
 export enum APIEndpoint {
     SIGNUP = 'signup',
     LOGIN = 'login',
+    LOGOUT = 'logout',
     PROFILE = 'profile',
 }

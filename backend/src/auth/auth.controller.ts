@@ -67,4 +67,17 @@ export class AuthController {
             message: ResponseMessage.LOGIN_SUCCESS,
         };
     }
+
+    @Post(APIEndpoint.LOGOUT)
+    async logout(@Res({passthrough: true}) res: express.Response): Promise<LoginResponse> {
+        res.cookie('accessToken', '', {
+            httpOnly: true,
+            maxAge: 0,
+            path: '/',
+        });
+        return {
+            status: ResponseStatus.SUCCESS,
+            message: ResponseMessage.LOGOUT_SUCCESS,
+        };
+    }
 }

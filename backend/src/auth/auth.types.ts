@@ -16,6 +16,14 @@ export class LoginResponse {
     message: string;
 }
 
+export class LogoutResponse {
+    @ApiProperty({example: '200'})
+    status: number;
+
+    @ApiProperty({example: 'User logged out successfully'})
+    message: string;
+}
+
 export class JwtPayload {
     sub: string;
     email: string;
