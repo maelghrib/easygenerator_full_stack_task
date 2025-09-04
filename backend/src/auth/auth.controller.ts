@@ -1,7 +1,7 @@
 import {
     Body,
     Controller,
-    Post,
+    Post, Res,
 } from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {
@@ -21,8 +21,9 @@ import {
 } from '@nestjs/swagger';
 import {
     APIEndpoint,
-    ResponseMessage,
+    ResponseMessage, ResponseStatus,
 } from '../common/constants';
+import express from 'express';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -46,7 +47,24 @@ export class AuthController {
         type: LoginResponse,
     })
     @ApiUnauthorizedResponse({description: ResponseMessage.INVALID_CREDENTIALS})
-    async login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
-        return this.authService.login(loginDto);
+    async login(
+        @Body() loginDto: LoginDto,
+        @Res({passthrough: true}) res: express.Response
+    ): Promise<LoginResponse> {
+
+        const accessToken = await this.authService.login(loginDto);
+
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 15 * 60 * 1000,
+        });
+
+        return {
+            status: ResponseStatus.SUCCESS,
+            message: ResponseMessage.LOGIN_SUCCESS,
+        };
     }
 }

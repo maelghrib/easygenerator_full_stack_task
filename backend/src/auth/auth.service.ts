@@ -39,7 +39,7 @@ export class AuthService {
         };
     }
 
-    async login(loginDto: LoginDto): Promise<LoginResponse> {
+    async login(loginDto: LoginDto): Promise<string> {
         const user: User | null = await this.usersService.findUser(loginDto.email);
 
         if (!user) {
@@ -63,8 +63,6 @@ export class AuthService {
 
         this.logger.log(`Login successful for ${loginDto.email}`);
 
-        return {
-            accessToken: accessToken,
-        };
+        return accessToken
     }
 }

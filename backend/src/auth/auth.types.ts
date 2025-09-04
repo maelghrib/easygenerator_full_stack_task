@@ -6,8 +6,11 @@ export class SignUpResponse {
 }
 
 export class LoginResponse {
-    @ApiProperty({ example: 'eyJhbGciOi...', description: 'JWT access token' })
-    accessToken: string;
+    @ApiProperty({example: '200'})
+    status: number;
+
+    @ApiProperty({example: 'User logged up successfully'})
+    message: string;
 }
 
 export class JwtPayload {
