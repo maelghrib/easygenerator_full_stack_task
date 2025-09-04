@@ -1,26 +1,35 @@
 import {
     Body,
-    Controller,
-    Get,
-    Post,
-    UseGuards,
-    UsePipes,
-    ValidationPipe,
+    Controller, Get,
+    Post, UseGuards,
 } from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {
     RefreshTokenDto,
-    UserLoginDto, UserSignUpDto,
+    UserLoginDto,
+    UserSignUpDto,
 } from './auth.dto';
-import {AuthGuard} from './auth.guard';
-import {JwtPayloadDecorator} from './auth.decorators';
-import {JwtPayload, LoginResponse, RefreshResponse, SignUpResponse, UserProfileResponse} from './auth.types';
+import {
+    JwtPayload,
+    LoginResponse,
+    RefreshResponse,
+    SignUpResponse, UserProfileResponse,
+} from './auth.types';
 import {
     ApiBearerAuth,
-    ApiResponse,
     ApiTags,
+    ApiCreatedResponse,
+    ApiOkResponse,
+    ApiUnauthorizedResponse,
+    ApiBadRequestResponse, ApiResponse,
 } from '@nestjs/swagger';
-import {APIEndpoint, ResponseMessage, ResponseStatus} from "../common/constants";
+import {
+    APIEndpoint,
+    ResponseMessage,
+    ResponseStatus,
+} from '../common/constants';
+import {AuthGuard} from "./auth.guard";
+import {JwtPayloadDecorator} from "./auth.decorators";
 
 @ApiTags('auth')
 @Controller('auth')
@@ -29,38 +38,31 @@ export class AuthController {
     }
 
     @Post(APIEndpoint.SIGNUP)
-    @ApiResponse({
-        status: ResponseStatus.CREATED,
+    @ApiCreatedResponse({
         description: ResponseMessage.SIGNUP_SUCCESS,
+        type: SignUpResponse,
     })
-    @ApiResponse({status: ResponseStatus.BAD_REQUEST, description: ResponseMessage.VALIDATION_FAILED})
-    @UsePipes(new ValidationPipe({whitelist: true}))
-    async signup(
-        @Body() userSignUpDto: UserSignUpDto,
-    ): Promise<SignUpResponse> {
-        return await this.authService.signup(userSignUpDto);
+    @ApiBadRequestResponse({description: ResponseMessage.VALIDATION_FAILED})
+    async signup(@Body() userSignUpDto: UserSignUpDto): Promise<SignUpResponse> {
+        return this.authService.signup(userSignUpDto);
     }
 
     @Post(APIEndpoint.LOGIN)
-    @ApiResponse({
-        status: ResponseStatus.SUCCESS,
+    @ApiOkResponse({
         description: ResponseMessage.LOGIN_SUCCESS,
+        type: LoginResponse,
     })
-    @ApiResponse({status: ResponseStatus.UNAUTHORIZED, description: ResponseMessage.INVALID_CREDENTIALS})
-    @UsePipes(new ValidationPipe({whitelist: true}))
-    async login(
-        @Body() userLoginDto: UserLoginDto,
-    ): Promise<LoginResponse> {
-        return await this.authService.login(userLoginDto);
+    @ApiUnauthorizedResponse({description: ResponseMessage.INVALID_CREDENTIALS})
+    async login(@Body() userLoginDto: UserLoginDto): Promise<LoginResponse> {
+        return this.authService.login(userLoginDto);
     }
 
     @Post(APIEndpoint.REFRESH)
-    @ApiResponse({
-        status: ResponseStatus.SUCCESS,
+    @ApiOkResponse({
         description: ResponseMessage.REFRESH_SUCCESS,
+        type: RefreshResponse,
     })
-    @ApiResponse({status: ResponseStatus.UNAUTHORIZED, description: ResponseMessage.EXPIRED_REFRESH_TOKEN})
-    @UsePipes(new ValidationPipe({whitelist: true}))
+    @ApiUnauthorizedResponse({description: ResponseMessage.EXPIRED_REFRESH_TOKEN})
     async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<RefreshResponse> {
         return this.authService.refresh(refreshTokenDto.refreshToken);
     }
