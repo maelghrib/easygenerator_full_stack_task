@@ -1,7 +1,7 @@
 import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {
-    UserLoginDto,
-    UserSignUpDto,
+    LoginDto,
+    SignUpDto,
 } from "./auth.dto";
 import * as argon from "argon2";
 import {UsersService} from "../users/users.service";
@@ -20,13 +20,13 @@ export class AuthService {
     ) {
     }
 
-    async signup(userSignUpDto: UserSignUpDto): Promise<SignUpResponse> {
+    async signup(signUpDto: SignUpDto): Promise<SignUpResponse> {
 
-        const passwordHash: string = await argon.hash(userSignUpDto.password);
+        const passwordHash: string = await argon.hash(signUpDto.password);
 
         await this.usersService.saveUser({
-            name: userSignUpDto.name,
-            email: userSignUpDto.email,
+            name: signUpDto.name,
+            email: signUpDto.email,
             password: passwordHash,
         });
 
@@ -35,8 +35,8 @@ export class AuthService {
         };
     }
 
-    async login(userLoginDto: UserLoginDto): Promise<LoginResponse> {
-        const user: User | null = await this.usersService.findUser(userLoginDto.email);
+    async login(loginDto: LoginDto): Promise<LoginResponse> {
+        const user: User | null = await this.usersService.findUser(loginDto.email);
 
         if (!user) {
             return {
@@ -47,7 +47,7 @@ export class AuthService {
             };
         }
 
-        const isPasswordMatch: boolean = await argon.verify(user.password, userLoginDto.password);
+        const isPasswordMatch: boolean = await argon.verify(user.password, loginDto.password);
 
         if (!isPasswordMatch) {
             return {

@@ -6,8 +6,8 @@ import {
 import {AuthService} from './auth.service';
 import {
     RefreshTokenDto,
-    UserLoginDto,
-    UserSignUpDto,
+    LoginDto,
+    SignUpDto,
 } from './auth.dto';
 import {
     LoginResponse,
@@ -38,8 +38,8 @@ export class AuthController {
         type: SignUpResponse,
     })
     @ApiBadRequestResponse({description: ResponseMessage.VALIDATION_FAILED})
-    async signup(@Body() userSignUpDto: UserSignUpDto): Promise<SignUpResponse> {
-        return this.authService.signup(userSignUpDto);
+    async signup(@Body() signUpDto: SignUpDto): Promise<SignUpResponse> {
+        return this.authService.signup(signUpDto);
     }
 
     @Post(APIEndpoint.LOGIN)
@@ -48,8 +48,8 @@ export class AuthController {
         type: LoginResponse,
     })
     @ApiUnauthorizedResponse({description: ResponseMessage.INVALID_CREDENTIALS})
-    async login(@Body() userLoginDto: UserLoginDto): Promise<LoginResponse> {
-        return this.authService.login(userLoginDto);
+    async login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
+        return this.authService.login(loginDto);
     }
 
     @Post(APIEndpoint.REFRESH)
