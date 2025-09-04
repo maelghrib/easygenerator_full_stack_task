@@ -2,22 +2,19 @@ import {Injectable} from '@nestjs/common';
 import {
     LoginUserDto,
     RegisterUserDto,
-    UserLoginResponseDto,
-    UserProfileResponseDto,
-    UserRegisterResponseDto
 } from "./auth.dto";
 import * as argon from "argon2";
 import {UsersService} from "../users/users.service";
 import {JwtService} from "@nestjs/jwt";
 import {User} from "../schemas/user.schema";
 import {ResponseMessage, ResponseStatus} from "../common/constants";
-import {JwtPayload} from "./auth.types";
+import {JwtPayload, UserLoginResponse, UserProfileResponse, UserRegisterResponse} from "./auth.types";
 
 @Injectable()
 export class AuthService {
     constructor(private usersService: UsersService, private jwtService: JwtService) {}
 
-    async registerUser(registerUserDto: RegisterUserDto): Promise<UserRegisterResponseDto> {
+    async registerUser(registerUserDto: RegisterUserDto): Promise<UserRegisterResponse> {
 
         const passwordHash: string = await argon.hash(registerUserDto.password);
 
@@ -38,7 +35,7 @@ export class AuthService {
         };
     }
 
-    async loginUser(loginUserDto: LoginUserDto): Promise<UserLoginResponseDto> {
+    async loginUser(loginUserDto: LoginUserDto): Promise<UserLoginResponse> {
         const user: User | null = await this.usersService.findUser(loginUserDto.email);
 
         if (!user) {
@@ -71,7 +68,7 @@ export class AuthService {
         };
     }
 
-    async getUserProfile(email: string): Promise<UserProfileResponseDto> {
+    async getUserProfile(email: string): Promise<UserProfileResponse> {
         const user: User | null = await this.usersService.findUser(email);
 
         if (!user) {

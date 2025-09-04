@@ -11,13 +11,10 @@ import {AuthService} from './auth.service';
 import {
     RegisterUserDto,
     LoginUserDto,
-    UserRegisterResponseDto,
-    UserLoginResponseDto,
-    UserProfileResponseDto,
 } from './auth.dto';
 import {AuthGuard} from './auth.guard';
 import {JwtPayloadDecorator} from './auth.decorators';
-import {JwtPayload} from './auth.types';
+import {JwtPayload, UserLoginResponse, UserProfileResponse, UserRegisterResponse} from './auth.types';
 import {
     ApiBearerAuth,
     ApiResponse,
@@ -35,13 +32,13 @@ export class AuthController {
     @ApiResponse({
         status: ResponseStatus.CREATED,
         description: ResponseMessage.USER_REGISTER_SUCCESS,
-        type: UserRegisterResponseDto,
+        type: UserRegisterResponse,
     })
     @ApiResponse({status: ResponseStatus.BAD_REQUEST, description: ResponseMessage.VALIDATION_FAILED})
     @UsePipes(new ValidationPipe({whitelist: true}))
     async registerUser(
         @Body() registerUserDto: RegisterUserDto,
-    ): Promise<UserRegisterResponseDto> {
+    ): Promise<UserRegisterResponse> {
         return await this.authService.registerUser(registerUserDto);
     }
 
@@ -49,13 +46,13 @@ export class AuthController {
     @ApiResponse({
         status: ResponseStatus.SUCCESS,
         description: ResponseMessage.USER_LOGIN_SUCCESS,
-        type: UserLoginResponseDto,
+        type: UserLoginResponse,
     })
     @ApiResponse({status: ResponseStatus.UNAUTHORIZED, description: ResponseMessage.INVALID_CREDENTIALS})
     @UsePipes(new ValidationPipe({whitelist: true}))
     async loginUser(
         @Body() loginUserDto: LoginUserDto,
-    ): Promise<UserLoginResponseDto> {
+    ): Promise<UserLoginResponse> {
         return await this.authService.loginUser(loginUserDto);
     }
 
@@ -65,12 +62,12 @@ export class AuthController {
     @ApiResponse({
         status: ResponseStatus.SUCCESS,
         description: ResponseMessage.USER_FETCH_SUCCESS,
-        type: UserProfileResponseDto,
+        type: UserProfileResponse,
     })
     @ApiResponse({status: ResponseStatus.UNAUTHORIZED, description: ResponseMessage.UNAUTHORIZED})
     async getUserProfile(
         @JwtPayloadDecorator() jwtPayload: JwtPayload,
-    ): Promise<UserProfileResponseDto> {
+    ): Promise<UserProfileResponse> {
         return await this.authService.getUserProfile(jwtPayload.email);
     }
 }
