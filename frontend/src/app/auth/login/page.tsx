@@ -26,6 +26,7 @@ export default function LoginPage() {
     const [loginInputData, setLoginInputData] = useState<LoginInputData>(initialLoginInputData)
     const [loginInputDataErrors, setLoginInputDataErrors] = useState<LoginInputDataErrors>({});
     const [visible, setVisible] = useState(false)
+    const [loading, setLoading] = useState(false);
 
     const validateLoginInputData = (): boolean => {
         const result = loginSchema.safeParse(loginInputData);
@@ -50,50 +51,32 @@ export default function LoginPage() {
     const handleLoginError = (err: unknown) => {
         if (isAxiosError(err)) {
             if (err.response) {
-
                 const data = err.response.data;
-
-                if (data.errors) {
-                    return data.errors;
-                }
-
-                if (Array.isArray(data.message)) {
-                    return {global: data.message};
-                }
-
-                if (typeof data.message === "string") {
-                    return {global: [data.message]};
-                }
-
+                if (data.errors) return data.errors;
+                if (Array.isArray(data.message)) return {global: data.message};
+                if (typeof data.message === "string") return {global: [data.message]};
             }
-
-            if (err.request) {
-                console.error("Network error:", err.request);
-                return {global: ["Network error. Please try again."]};
-            }
-
-            console.error("Axios error:", err.message);
+            if (err.request) return {global: ["Network error. Please try again."]};
             return {global: [err.message]};
         }
-
-        console.error("Unexpected error:", err);
         return {global: ["Unexpected error occurred"]};
     };
 
     const onLogin = async () => {
         if (!validateLoginInputData()) return;
 
+        setLoading(true);
         try {
             const response: AxiosResponse<LoginResponse> = await axios.post(
                 APIEndpoint.LOGIN, loginInputData, {withCredentials: true,}
             )
             if (response.data.status === ResponseStatus.SUCCESS) {
                 router.push(PageRoute.HOME);
-            } else {
             }
-
         } catch (error) {
             setLoginInputDataErrors(handleLoginError(error));
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -101,6 +84,15 @@ export default function LoginPage() {
         <ChakraUI.Center w={"100%"} h={"100vh"} flexDir={"column"} gap={"5"}>
 
             <ChakraUI.Text fontSize="30px" fontWeight={"bold"}>{welcomeText}</ChakraUI.Text>
+
+            {loading && (
+                <ChakraUI.ProgressCircle.Root value={null} size="sm">
+                    <ChakraUI.ProgressCircle.Circle>
+                        <ChakraUI.ProgressCircle.Track/>
+                        <ChakraUI.ProgressCircle.Range/>
+                    </ChakraUI.ProgressCircle.Circle>
+                </ChakraUI.ProgressCircle.Root>
+            )}
 
             {loginInputDataErrors.global?.map((msg, i) => (
                 <p key={i} className="text-red-500 text-sm">{msg}</p>

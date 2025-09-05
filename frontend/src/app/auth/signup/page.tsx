@@ -27,6 +27,7 @@ export default function SignUpPage() {
     const [signUpInputData, setSignUpInputData] = useState<SignUpInputData>(initialSignUpInputData)
     const [signUpInputDataErrors, setSignUpInputDataErrors] = useState<SignUpInputDataErrors>({})
     const [visible, setVisible] = useState(false)
+    const [loading, setLoading] = useState(false);
 
     const validateSignUpInputData = () => {
         const result = signUpSchema.safeParse(signUpInputData);
@@ -51,21 +52,10 @@ export default function SignUpPage() {
     const handleSignUpError = (err: unknown) => {
         if (isAxiosError(err)) {
             if (err.response) {
-
                 const data = err.response.data;
-
-                if (data.errors) {
-                    return data.errors;
-                }
-
-                if (Array.isArray(data.message)) {
-                    return { global: data.message };
-                }
-
-                if (typeof data.message === "string") {
-                    return { global: [data.message] };
-                }
-
+                if (data.errors) return data.errors;
+                if (Array.isArray(data.message)) return {global: data.message};
+                if (typeof data.message === "string") return {global: [data.message]};
             }
 
             if (err.request) {
@@ -84,6 +74,7 @@ export default function SignUpPage() {
     const onSignUp = async () => {
         if (!validateSignUpInputData()) return;
 
+        setLoading(true);
         try {
             const response: AxiosResponse<SignUpResponse> = await axios.post(
                 APIEndpoint.SIGNUP,
@@ -95,6 +86,8 @@ export default function SignUpPage() {
             }
         } catch (err) {
             setSignUpInputDataErrors(handleSignUpError(err));
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -102,6 +95,15 @@ export default function SignUpPage() {
         <ChakraUI.Center w={"100%"} h={"100vh"} flexDir={"column"} gap={"5"}>
 
             <ChakraUI.Text fontSize="30px" fontWeight={"bold"}>{welcomeText}</ChakraUI.Text>
+
+            {loading && (
+                <ChakraUI.ProgressCircle.Root value={null} size="sm">
+                    <ChakraUI.ProgressCircle.Circle>
+                        <ChakraUI.ProgressCircle.Track/>
+                        <ChakraUI.ProgressCircle.Range/>
+                    </ChakraUI.ProgressCircle.Circle>
+                </ChakraUI.ProgressCircle.Root>
+            )}
 
             {signUpInputDataErrors.global?.map((msg, i) => (
                 <p key={i} className="text-red-500 text-sm">{msg}</p>
