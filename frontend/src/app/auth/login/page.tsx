@@ -3,7 +3,7 @@
 import * as ChakraUI from "@chakra-ui/react"
 import {PasswordInput} from "@/components/ui/password-input"
 import {useState} from "react";
-import {AxiosResponse} from "axios";
+import {AxiosResponse, isAxiosError} from "axios";
 import axios from "@/utils/axios";
 import {useRouter} from 'next/navigation';
 import {APIEndpoint, PageRoute, ResponseStatus} from "@/utils/constants";
@@ -47,6 +47,39 @@ export default function LoginPage() {
         }
     };
 
+    const handleLoginError = (err: unknown) => {
+        if (isAxiosError(err)) {
+            if (err.response) {
+
+                const data = err.response.data;
+
+                if (data.errors) {
+                    return data.errors;
+                }
+
+                if (Array.isArray(data.message)) {
+                    return {global: data.message};
+                }
+
+                if (typeof data.message === "string") {
+                    return {global: [data.message]};
+                }
+
+            }
+
+            if (err.request) {
+                console.error("Network error:", err.request);
+                return {global: ["Network error. Please try again."]};
+            }
+
+            console.error("Axios error:", err.message);
+            return {global: [err.message]};
+        }
+
+        console.error("Unexpected error:", err);
+        return {global: ["Unexpected error occurred"]};
+    };
+
     const onLogin = async () => {
         if (!validateLoginInputData()) return;
 
@@ -60,7 +93,7 @@ export default function LoginPage() {
             }
 
         } catch (error) {
-            console.log(error)
+            setLoginInputDataErrors(handleLoginError(error));
         }
     }
 
@@ -68,6 +101,10 @@ export default function LoginPage() {
         <ChakraUI.Center w={"100%"} h={"100vh"} flexDir={"column"} gap={"5"}>
 
             <ChakraUI.Text fontSize="30px" fontWeight={"bold"}>{welcomeText}</ChakraUI.Text>
+
+            {loginInputDataErrors.global?.map((msg, i) => (
+                <p key={i} className="text-red-500 text-sm">{msg}</p>
+            ))}
 
             <ChakraUI.Flex w={"30%"} flexDir={"column"} gap={"5"}>
 
