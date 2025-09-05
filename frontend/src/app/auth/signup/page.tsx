@@ -4,7 +4,7 @@ import * as ChakraUI from "@chakra-ui/react"
 import {PasswordInput} from "@/components/ui/password-input"
 import {useState} from "react";
 import axios from '@/utils/axios';
-import {AxiosResponse} from "axios";
+import {AxiosResponse, AxiosError, isAxiosError} from "axios";
 import {useRouter} from 'next/navigation';
 import {APIEndpoint, PageRoute, ResponseStatus} from "@/utils/constants";
 import {Link as ChakraLink} from "@chakra-ui/react"
@@ -60,27 +60,64 @@ export default function SignUpPage() {
         }
     };
 
-    const onSignUp = async () => {
-        if (validateSignUpInputData()) {
-            try {
-                const response: AxiosResponse<SignUpResponse> = await axios.post(APIEndpoint.SIGNUP, signUpInputData)
-                if (response.data.status === ResponseStatus.CREATED) {
-                    router.push(PageRoute.LOGIN);
-                } else {
+    const handleSignUpError = (err: unknown) => {
+        if (isAxiosError(err)) {
+            if (err.response) {
+
+                const data = err.response.data;
+
+                if (data.errors) {
+                    return data.errors;
                 }
 
-            } catch (error) {
-                console.log(error)
+                if (Array.isArray(data.message)) {
+                    return { global: data.message };
+                }
+
+                if (typeof data.message === "string") {
+                    return { global: [data.message] };
+                }
+
             }
-        } else {
-            return;
+
+            if (err.request) {
+                console.error("Network error:", err.request);
+                return {global: ["Network error. Please try again."]};
+            }
+
+            console.error("Axios error:", err.message);
+            return {global: [err.message]};
         }
-    }
+
+        console.error("Unexpected error:", err);
+        return {global: ["Unexpected error occurred"]};
+    };
+
+    const onSignUp = async () => {
+        if (!validateSignUpInputData()) return;
+
+        try {
+            const response: AxiosResponse<SignUpResponse> = await axios.post(
+                APIEndpoint.SIGNUP,
+                signUpInputData
+            );
+
+            if (response.data.status === ResponseStatus.CREATED) {
+                router.push(PageRoute.LOGIN);
+            }
+        } catch (err) {
+            setSignUpInputDataErrors(handleSignUpError(err));
+        }
+    };
 
     return (
         <ChakraUI.Center w={"100%"} h={"100vh"} flexDir={"column"} gap={"5"}>
 
             <ChakraUI.Text fontSize="30px" fontWeight={"bold"}>{welcomeText}</ChakraUI.Text>
+
+            {signUpInputDataErrors.global?.map((msg, i) => (
+                <p key={i} className="text-red-500 text-sm">{msg}</p>
+            ))}
 
             <ChakraUI.Flex w={"30%"} flexDir={"column"} gap={"5"}>
 

@@ -1,7 +1,7 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
 import {SwaggerModule, DocumentBuilder, SwaggerDocumentOptions} from '@nestjs/swagger';
-import {Logger, ValidationPipe} from "@nestjs/common";
+import {BadRequestException, Logger, ValidationPipe} from "@nestjs/common";
 import helmet from "helmet";
 import {AllExceptionsFilter} from "./common/exceptions.filter";
 
@@ -26,6 +26,14 @@ async function bootstrap() {
             whitelist: true,
             forbidNonWhitelisted: true,
             transform: true,
+            exceptionFactory: (errors) => {
+                const formatted = errors.reduce((acc, err) => {
+                    acc[err.property] = Object.values(err.constraints || {});
+                    return acc;
+                }, {} as Record<string, string[]>);
+
+                return new BadRequestException({ errors: formatted });
+            },
         }),
     );
 
