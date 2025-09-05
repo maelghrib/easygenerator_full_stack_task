@@ -7,9 +7,22 @@ import axios from '@/utils/axios';
 import {AxiosResponse} from "axios";
 import {useRouter} from 'next/navigation';
 import {APIEndpoint, PageRoute, ResponseStatus} from "@/utils/constants";
-import {SignUpInputData, SignUpResponse} from "@/utils/types";
 import {Link as ChakraLink} from "@chakra-ui/react"
 import NextLink from "next/link"
+import {z} from "zod";
+import {SignUpInputData, SignUpInputDataErrors, SignUpResponse} from "@/utils/types";
+
+const signUpSchema = z.object({
+    name: z.string().min(3, "Name must be at least 3 characters"),
+    email: z.email("Invalid email format"),
+    password: z
+        .string()
+        .min(8, "Password must be at least 8 characters")
+        .regex(/[a-zA-Z]/, "Password must contain at least one letter")
+        .regex(/\d/, "Password must contain at least one number")
+        .regex(/[@$!%*?&]/, "Password must contain at least one special character"),
+});
+
 
 export default function SignUpPage() {
 
@@ -24,18 +37,43 @@ export default function SignUpPage() {
     }
 
     const [signUpInputData, setSignUpInputData] = useState<SignUpInputData>(initialSignUpInputData)
+    const [signUpInputDataErrors, setSignUpInputDataErrors] = useState<SignUpInputDataErrors>({})
     const [visible, setVisible] = useState(false)
 
-    const onSignUp = async () => {
-        try {
-            const response: AxiosResponse<SignUpResponse> = await axios.post(APIEndpoint.SIGNUP, signUpInputData)
-            if (response.data.status === ResponseStatus.CREATED) {
-                router.push(PageRoute.LOGIN);
-            } else {
-            }
+    const validateSignUpInputData = () => {
+        const result = signUpSchema.safeParse(signUpInputData);
 
-        } catch (error) {
-            console.log(error)
+        if (!result.success) {
+            const newErrors: SignUpInputDataErrors = {};
+            result.error.issues.forEach((issue) => {
+                const field = issue.path[0] as string;
+                if (!newErrors[field]) {
+                    newErrors[field] = [];
+                }
+                newErrors[field].push(issue.message);
+            });
+            setSignUpInputDataErrors(newErrors);
+            return false
+        } else {
+            setSignUpInputDataErrors({});
+            return true
+        }
+    };
+
+    const onSignUp = async () => {
+        if (validateSignUpInputData()) {
+            try {
+                const response: AxiosResponse<SignUpResponse> = await axios.post(APIEndpoint.SIGNUP, signUpInputData)
+                if (response.data.status === ResponseStatus.CREATED) {
+                    router.push(PageRoute.LOGIN);
+                } else {
+                }
+
+            } catch (error) {
+                console.log(error)
+            }
+        } else {
+            return;
         }
     }
 
@@ -46,7 +84,7 @@ export default function SignUpPage() {
 
             <ChakraUI.Flex w={"30%"} flexDir={"column"} gap={"5"}>
 
-                <ChakraUI.Field.Root required>
+                <ChakraUI.Field.Root required invalid={signUpInputDataErrors.name?.length > 0}>
                     <ChakraUI.Field.Label>
                         Name <ChakraUI.Field.RequiredIndicator/>
                     </ChakraUI.Field.Label>
@@ -60,9 +98,12 @@ export default function SignUpPage() {
                             setSignUpInputData(newSignUpInputData)
                         }}
                     />
+                    {signUpInputDataErrors.name?.map((err, i) => (
+                        <ChakraUI.Field.ErrorText key={i}>{err}</ChakraUI.Field.ErrorText>
+                    ))}
                 </ChakraUI.Field.Root>
 
-                <ChakraUI.Field.Root required>
+                <ChakraUI.Field.Root required invalid={signUpInputDataErrors.email?.length > 0}>
                     <ChakraUI.Field.Label>
                         Email <ChakraUI.Field.RequiredIndicator/>
                     </ChakraUI.Field.Label>
@@ -76,9 +117,12 @@ export default function SignUpPage() {
                             setSignUpInputData(newSignUpInputData)
                         }}
                     />
+                    {signUpInputDataErrors.email?.map((err, i) => (
+                        <ChakraUI.Field.ErrorText key={i}>{err}</ChakraUI.Field.ErrorText>
+                    ))}
                 </ChakraUI.Field.Root>
 
-                <ChakraUI.Field.Root required>
+                <ChakraUI.Field.Root required invalid={signUpInputDataErrors.password?.length > 0}>
                     <ChakraUI.Field.Label>
                         Password <ChakraUI.Field.RequiredIndicator/>
                     </ChakraUI.Field.Label>
@@ -94,6 +138,9 @@ export default function SignUpPage() {
                             setSignUpInputData(newSignUpInputData)
                         }}
                     />
+                    {signUpInputDataErrors.password?.map((err, i) => (
+                        <ChakraUI.Field.ErrorText key={i}>{err}</ChakraUI.Field.ErrorText>
+                    ))}
                 </ChakraUI.Field.Root>
 
                 <ChakraUI.Button onClick={onSignUp}>Signup</ChakraUI.Button>
