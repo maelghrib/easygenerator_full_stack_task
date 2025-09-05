@@ -38,7 +38,7 @@ Build and start the project:
 make up
 ```
 
-Start updating the code at [backend](backend) and [frontend](frontend)
+Start updating the code at the [backend](backend) and the [frontend](frontend) folders
 
 Visit and test the app at http://localhost:3000
 
