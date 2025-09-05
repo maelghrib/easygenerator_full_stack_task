@@ -25,15 +25,24 @@ Make sure to install Docker, Docker Compose, and Make:
 
 ### Run the Project
 
+Clone this repo:
+
+```bash
+git clone https://github.com/maelghrib/easygenerator_full_stack_task.git
+cd easygenerator_full_stack_task
+```
+
 Build and start the project:
 
 ```bash
 make up
 ```
 
-Visit the app at http://localhost:3000
+Start updating the code at [backend](backend) and [frontend](frontend)
 
-Visit the API Docs at http://localhost:3333/api
+Visit and test the app at http://localhost:3000
+
+Visit and test the API at http://localhost:3333/api
 
 Stop the project:
 
