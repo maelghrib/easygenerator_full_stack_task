@@ -4,25 +4,13 @@ import * as ChakraUI from "@chakra-ui/react"
 import {PasswordInput} from "@/components/ui/password-input"
 import {useState} from "react";
 import axios from '@/utils/axios';
-import {AxiosResponse, AxiosError, isAxiosError} from "axios";
+import {AxiosResponse, isAxiosError} from "axios";
 import {useRouter} from 'next/navigation';
 import {APIEndpoint, PageRoute, ResponseStatus} from "@/utils/constants";
 import {Link as ChakraLink} from "@chakra-ui/react"
 import NextLink from "next/link"
-import {z} from "zod";
 import {SignUpInputData, SignUpInputDataErrors, SignUpResponse} from "@/utils/types";
-
-const signUpSchema = z.object({
-    name: z.string().min(3, "Name must be at least 3 characters"),
-    email: z.email("Invalid email format"),
-    password: z
-        .string()
-        .min(8, "Password must be at least 8 characters")
-        .regex(/[a-zA-Z]/, "Password must contain at least one letter")
-        .regex(/\d/, "Password must contain at least one number")
-        .regex(/[@$!%*?&]/, "Password must contain at least one special character"),
-});
-
+import {signUpSchema} from "@/utils/schemas";
 
 export default function SignUpPage() {
 

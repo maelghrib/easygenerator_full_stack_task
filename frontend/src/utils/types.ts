@@ -4,8 +4,6 @@ export type SignUpInputData = {
     password: string,
 }
 
-export type SignUpInputDataErrors = Record<string, string[]>;
-
 export type LoginInputData = {
     email: string,
     password: string,
@@ -37,3 +35,5 @@ export type UserProfileResponse = {
     message: string,
     user?: UserData,
 }
+
+export type SignUpInputDataErrors = Record<string, string[]>;
