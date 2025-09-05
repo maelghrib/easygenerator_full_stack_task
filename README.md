@@ -2,14 +2,34 @@
 A production-ready authentication service that allows a user to sign up and sign in to the application.
 
 ## Tech Stack
-- TypeScript
-- Nestjs
-- MongoDB
-- React.js
-- Next.js
+- Programming Language: TypeScript/JavaScript
+- Frontend: React.js, Next.js, Chakra UI
+- Backend: Nest.js
+- Database: MongoDB
+
 
 ## Getting Started
 
-For backend, refer to the backend folder [README.md](backend/README.md) for instructions
+### Prerequisites
+Make sure to install Docker, Docker Compose, and Make:
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Make](https://www.gnu.org/software/make/)
 
-Instructions for the frontend will be provided soon...
+### Run the Project
+
+Build and start the project:
+
+```bash
+make up
+```
+
+Visit the app at http://localhost:3000
+
+Visit the API Docs at http://localhost:3333/api
+
+Stop the project:
+
+```bash
+make down
+```
