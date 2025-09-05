@@ -40,9 +40,9 @@ make up
 
 Start updating the code at the [backend](backend) and the [frontend](frontend) folders
 
-Visit and test the app at http://localhost:3000
+Visit and test the frontend app at http://localhost:3000
 
-Visit and test the API at http://localhost:3333/api
+Visit and test the backend API at http://localhost:3333/api
 
 Stop the project:
 
