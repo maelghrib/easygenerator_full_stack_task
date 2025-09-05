@@ -15,7 +15,7 @@ For a demo with logs, You could see this video: [Easygenerator Full Stack Task D
 
 ## Getting Started
 
-To run this project, You could see this video: [How to Run Easygenerator Full Stack Task Code on Your Local Machine](https://youtu.be/wrxHr9fJcoo)
+To run this project, You could see this video: [How to Run Easygenerator Full Stack Task Code on Your Local Machine](https://youtu.be/GefVeJ24to4)
 
 ### Prerequisites
 Make sure to install Docker, Docker Compose, and Make:
