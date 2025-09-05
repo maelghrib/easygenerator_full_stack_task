@@ -3,9 +3,10 @@ import {cookies} from 'next/headers';
 import {redirect} from 'next/navigation';
 import axios from '@/utils/axios';
 import {APIEndpoint, ResponseStatus, PageRoute} from '@/utils/constants';
-import {LogoutResponse, UserData, UserProfileResponse} from '@/utils/types';
+import {UserData, UserProfileResponse} from '@/utils/types';
 import {AxiosResponse} from "axios";
 import {LoginButton} from "@/components/LogoutButton";
+import {logger} from "@/utils/logger";
 
 export default async function Home() {
 
@@ -13,22 +14,26 @@ export default async function Home() {
     const token = cookieStore.get('accessToken')?.value;
 
     if (!token) {
+        logger.warn("No access token found, redirecting to login");
         redirect(PageRoute.LOGIN);
     }
 
     let user: UserData | null = null;
     try {
+        logger.info("Fetching user profile with token");
         const response: AxiosResponse<UserProfileResponse> = await axios.get<UserProfileResponse>(
             APIEndpoint.PROFILE, {headers: {Authorization: `Bearer ${token}`}}
         );
 
         if (response.data.status === ResponseStatus.SUCCESS) {
             user = response.data.user!!;
+            logger.info("User profile fetched successfully", user);
         } else {
+            logger.warn("Profile fetch failed, redirecting", response.data);
             redirect(PageRoute.LOGIN);
         }
     } catch (err) {
-        console.error(err);
+        logger.error("Error fetching user profile", err);
         redirect(PageRoute.LOGIN);
     }
 

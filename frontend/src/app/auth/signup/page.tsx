@@ -11,6 +11,7 @@ import {Link as ChakraLink} from "@chakra-ui/react"
 import NextLink from "next/link"
 import {SignUpInputData, SignUpInputDataErrors, SignUpResponse} from "@/utils/types";
 import {signUpSchema} from "@/utils/schemas";
+import {logger} from "@/utils/logger";
 
 export default function SignUpPage() {
 
@@ -42,9 +43,11 @@ export default function SignUpPage() {
                 newErrors[field].push(issue.message);
             });
             setSignUpInputDataErrors(newErrors);
+            logger.warn("Validation failed", newErrors);
             return false
         } else {
             setSignUpInputDataErrors({});
+            logger.info("Validation passed", signUpInputData);
             return true
         }
     };
@@ -52,6 +55,7 @@ export default function SignUpPage() {
     const handleSignUpError = (err: unknown) => {
         if (isAxiosError(err)) {
             if (err.response) {
+                logger.error("API error response", err.response.data);
                 const data = err.response.data;
                 if (data.errors) return data.errors;
                 if (Array.isArray(data.message)) return {global: data.message};
@@ -59,15 +63,15 @@ export default function SignUpPage() {
             }
 
             if (err.request) {
-                console.error("Network error:", err.request);
+                logger.error("Network error", err.request);
                 return {global: ["Network error. Please try again."]};
             }
 
-            console.error("Axios error:", err.message);
+            logger.error("Axios error", err.message);
             return {global: [err.message]};
         }
 
-        console.error("Unexpected error:", err);
+        logger.error("Unexpected error", err);
         return {global: ["Unexpected error occurred"]};
     };
 
@@ -76,15 +80,19 @@ export default function SignUpPage() {
 
         setLoading(true);
         try {
+            logger.info("Sending signup request", signUpInputData);
             const response: AxiosResponse<SignUpResponse> = await axios.post(
                 APIEndpoint.SIGNUP,
                 signUpInputData
             );
+            logger.info("Signup response received", response.data);
 
             if (response.data.status === ResponseStatus.CREATED) {
+                logger.info("Signup successful, redirecting to login");
                 router.push(PageRoute.LOGIN);
             }
         } catch (err) {
+            logger.error("Signup failed", err);
             setSignUpInputDataErrors(handleSignUpError(err));
         } finally {
             setLoading(false);

@@ -11,6 +11,7 @@ import {LoginInputData, LoginInputDataErrors, LoginResponse} from "@/utils/types
 import {Link as ChakraLink} from "@chakra-ui/react"
 import NextLink from "next/link"
 import {loginSchema} from "@/utils/schemas";
+import {logger} from "@/utils/logger";
 
 export default function LoginPage() {
 
@@ -41,9 +42,11 @@ export default function LoginPage() {
                 newErrors[field].push(issue.message);
             });
             setLoginInputDataErrors(newErrors);
+            logger.warn("Validation failed", newErrors);
             return false;
         } else {
             setLoginInputDataErrors({});
+            logger.info("Validation passed", loginInputData);
             return true;
         }
     };
@@ -51,14 +54,20 @@ export default function LoginPage() {
     const handleLoginError = (err: unknown) => {
         if (isAxiosError(err)) {
             if (err.response) {
+                logger.error("API error response", err.response.data);
                 const data = err.response.data;
                 if (data.errors) return data.errors;
                 if (Array.isArray(data.message)) return {global: data.message};
                 if (typeof data.message === "string") return {global: [data.message]};
             }
-            if (err.request) return {global: ["Network error. Please try again."]};
+            if (err.request) {
+                logger.error("Network error", err.request);
+                return {global: ["Network error. Please try again."]};
+            }
+            logger.error("Axios error", err.message);
             return {global: [err.message]};
         }
+        logger.error("Unexpected error", err);
         return {global: ["Unexpected error occurred"]};
     };
 
@@ -67,13 +76,17 @@ export default function LoginPage() {
 
         setLoading(true);
         try {
+            logger.info("Sending login request", loginInputData);
             const response: AxiosResponse<LoginResponse> = await axios.post(
                 APIEndpoint.LOGIN, loginInputData, {withCredentials: true,}
             )
+            logger.info("Login response received", response.data);
             if (response.data.status === ResponseStatus.SUCCESS) {
+                logger.info("Login successful, redirecting to home");
                 router.push(PageRoute.HOME);
             }
         } catch (error) {
+            logger.error("Login failed", error);
             setLoginInputDataErrors(handleLoginError(error));
         } finally {
             setLoading(false);
