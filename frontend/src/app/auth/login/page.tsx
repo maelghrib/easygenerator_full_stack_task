@@ -7,9 +7,10 @@ import {AxiosResponse} from "axios";
 import axios from "@/utils/axios";
 import {useRouter} from 'next/navigation';
 import {APIEndpoint, PageRoute, ResponseStatus} from "@/utils/constants";
-import {LoginInputData, LoginResponse} from "@/utils/types";
+import {LoginInputData, LoginInputDataErrors, LoginResponse} from "@/utils/types";
 import {Link as ChakraLink} from "@chakra-ui/react"
 import NextLink from "next/link"
+import {loginSchema} from "@/utils/schemas";
 
 export default function LoginPage() {
 
@@ -23,9 +24,32 @@ export default function LoginPage() {
     }
 
     const [loginInputData, setLoginInputData] = useState<LoginInputData>(initialLoginInputData)
+    const [loginInputDataErrors, setLoginInputDataErrors] = useState<LoginInputDataErrors>({});
     const [visible, setVisible] = useState(false)
 
+    const validateLoginInputData = (): boolean => {
+        const result = loginSchema.safeParse(loginInputData);
+
+        if (!result.success) {
+            const newErrors: LoginInputDataErrors = {};
+            result.error.issues.forEach((issue) => {
+                const field = issue.path[0] as string;
+                if (!newErrors[field]) {
+                    newErrors[field] = [];
+                }
+                newErrors[field].push(issue.message);
+            });
+            setLoginInputDataErrors(newErrors);
+            return false;
+        } else {
+            setLoginInputDataErrors({});
+            return true;
+        }
+    };
+
     const onLogin = async () => {
+        if (!validateLoginInputData()) return;
+
         try {
             const response: AxiosResponse<LoginResponse> = await axios.post(
                 APIEndpoint.LOGIN, loginInputData, {withCredentials: true,}
@@ -47,7 +71,7 @@ export default function LoginPage() {
 
             <ChakraUI.Flex w={"30%"} flexDir={"column"} gap={"5"}>
 
-                <ChakraUI.Field.Root required>
+                <ChakraUI.Field.Root required invalid={loginInputDataErrors.email?.length > 0}>
                     <ChakraUI.Field.Label>
                         Email <ChakraUI.Field.RequiredIndicator/>
                     </ChakraUI.Field.Label>
@@ -61,9 +85,12 @@ export default function LoginPage() {
                             setLoginInputData(newLoginInputData)
                         }}
                     />
+                    {loginInputDataErrors.email?.map((err, i) => (
+                        <ChakraUI.Field.ErrorText key={i}>{err}</ChakraUI.Field.ErrorText>
+                    ))}
                 </ChakraUI.Field.Root>
 
-                <ChakraUI.Field.Root required>
+                <ChakraUI.Field.Root required invalid={loginInputDataErrors.password?.length > 0}>
                     <ChakraUI.Field.Label>
                         Password <ChakraUI.Field.RequiredIndicator/>
                     </ChakraUI.Field.Label>
@@ -79,6 +106,9 @@ export default function LoginPage() {
                             setLoginInputData(newLoginInputData)
                         }}
                     />
+                    {loginInputDataErrors.password?.map((err, i) => (
+                        <ChakraUI.Field.ErrorText key={i}>{err}</ChakraUI.Field.ErrorText>
+                    ))}
                 </ChakraUI.Field.Root>
 
                 <ChakraUI.Button onClick={onLogin}>Login</ChakraUI.Button>

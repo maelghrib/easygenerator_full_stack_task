@@ -37,3 +37,5 @@ export type UserProfileResponse = {
 }
 
 export type SignUpInputDataErrors = Record<string, string[]>;
+
+export type LoginInputDataErrors = Record<string, string[]>;

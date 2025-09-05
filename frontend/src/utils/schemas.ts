@@ -10,3 +10,8 @@ export const signUpSchema = z.object({
         .regex(/\d/, "Password must contain at least one number")
         .regex(/[@$!%*?&]/, "Password must contain at least one special character"),
 });
+
+export const loginSchema = z.object({
+    email: z.email("Invalid email format"),
+    password: z.string().min(1, "Password is required"),
+});
